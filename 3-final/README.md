@@ -12,13 +12,16 @@ Also new: `readMoney()`, which reads an amount like `10.00` the same safe way as
 
 **New files:** `exceptions/NotEnoughMoneyException.java`, `ui/ReceiptPrinter.java`
 
+`Order.Builder` and the optional name on the cup are the same as in stage 2. The receipt now
+reads like *Receipt: 2 x latte for Sam*.
+
 ## Checked or unchecked?
 
 - `InvalidCupCountException` and `NotEnoughMoneyException` extend `Exception`, so they are
   **checked**: the compiler makes you catch them or declare `throws`.
 - `NumberFormatException` (from `parseInt`) is **unchecked**. We catch it right inside the small
   reading helpers, because that's the normal Java way to test whether text is a number.
-- `Objects.requireNonNull` in `Order` is a contract for **our** bugs. We never catch it.
+- `Objects.requireNonNull` in `Order.Builder` is a contract for **our** bugs. We never catch it.
 
 ## Try it
 

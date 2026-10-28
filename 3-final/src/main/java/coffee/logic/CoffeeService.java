@@ -11,6 +11,6 @@ import java.util.List;
 public interface CoffeeService {
     List<Drink> drinks();
     Drink findDrink(String name);
-    Order placeOrder(Drink drink, int cups) throws InvalidCupCountException;
+    Order placeOrder(Drink drink, int cups, String nameOnCup) throws InvalidCupCountException;
     BigDecimal pay(Order order, BigDecimal paid) throws NotEnoughMoneyException;
 }

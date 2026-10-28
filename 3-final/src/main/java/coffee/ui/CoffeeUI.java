@@ -23,17 +23,27 @@ public class CoffeeUI {
             System.out.println("  " + d.name() + "  $" + d.price());
         }
         Drink drink = readDrink();
-        Order order = readOrder(drink);
+        System.out.print("Name for the cup (press Enter to skip): ");
+        String nameOnCup = input.nextLine();
+        Order order = readOrder(drink, nameOnCup);
         System.out.println("Total: $" + order.total());
         BigDecimal change = readPayment(order);
         System.out.println("Change: $" + change);
 
-        ReceiptPrinter.print("Receipt: " + order.cups() + " x " + drink.name());
+        ReceiptPrinter.print("Receipt: " + receiptLine(order));
         if (ReceiptPrinter.lastError != null) {
             System.out.println("Sorry, no receipt today (the printer is "
                     + ReceiptPrinter.lastError + ").");
         }
         System.out.println("Enjoy your drink!");
+    }
+
+    private String receiptLine(Order order) {
+        String line = order.cups() + " x " + order.drink().name();
+        if (!order.nameOnCup().isEmpty()) {
+            line = line + " for " + order.nameOnCup();
+        }
+        return line;
     }
 
     // Return value: findDrink gives back null if we don't sell it
@@ -49,12 +59,12 @@ public class CoffeeUI {
         }
     }
 
-    // Exception from the domain model: Order checks the number of cups
-    private Order readOrder(Drink drink) {
+    // Exception from the domain model: Order.Builder checks the number of cups
+    private Order readOrder(Drink drink, String nameOnCup) {
         while (true) {
             int cups = readWholeNumber("How many cups? ");
             try {
-                return shop.placeOrder(drink, cups);
+                return shop.placeOrder(drink, cups, nameOnCup);
             } catch (InvalidCupCountException e) {
                 System.out.println("You can order 1 to " + Order.MAX_CUPS + " cups. Please try again.");
             }

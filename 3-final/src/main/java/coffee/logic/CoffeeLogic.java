@@ -23,8 +23,13 @@ public class CoffeeLogic implements CoffeeService {
     }
 
     @Override
-    public Order placeOrder(Drink drink, int cups) throws InvalidCupCountException {
-        return new Order(drink, cups);    // Order checks itself
+    public Order placeOrder(Drink drink, int cups, String nameOnCup)
+            throws InvalidCupCountException {
+        return new Order.Builder()        // the Builder checks each piece
+                .drink(drink)
+                .cups(cups)
+                .nameOnCup(nameOnCup)
+                .build();
     }
 
     /** Returns the change. */
