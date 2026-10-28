@@ -10,13 +10,15 @@
 - `model/Order.java` now uses the **Builder pattern** from Week 7:
   - the constructor is `private`; the only way to make an `Order` is `new Order.Builder()`
   - `cups(int)` checks the rule (1 to 10 cups) and throws `InvalidCupCountException`
-  - `drink(Drink)` uses `Objects.requireNonNull` (a contract for our own code)
+  - `drink(Drink)` and `nameOnCup(String)` use `checkNotNull`, and `build()` uses `checkState`:
+    contracts for our own bugs, the same Guava checks as Week 7
   - `nameOnCup(String)` is optional; the default is no name
   - `build()` returns an `Order` that is always valid
 - `logic/CoffeeService.java` and `logic/CoffeeLogic.java`:
   `placeOrder(drink, cups, nameOnCup)` chains the Builder calls and declares
   `throws InvalidCupCountException`.
-- **New file:** `exceptions/InvalidCupCountException.java`
+- **New file:** `exceptions/InvalidCupCountException.java` (our own checked exception)
+- `pom.xml` now includes Guava, for `checkNotNull` and `checkState`.
 
 **Fixed:** problem 1 (`two` for cups) and problem 3 (`0` cups).
 **Still broken (fixed in stage 3):** problem 2 (`mocha`) and problem 4 (paying too little).
@@ -29,3 +31,13 @@ The UI checks the **type** (is it a whole number?). The domain model checks its 
 
 Why a Builder? Adding the new `nameOnCup` field to a public constructor would break every
 `new Order(...)` call. With a Builder, the new piece is one more optional method with a default.
+
+## Java's exceptions and ours
+
+| Exception | Whose? | When |
+|---|---|---|
+| `InputMismatchException` | Java's (unchecked) | `nextInt()` gets text that is not a number. Stage 1's crash; gone now. |
+| `NumberFormatException` | Java's (unchecked) | `Integer.parseInt("two")`. Caught in `readWholeNumber`. |
+| `NullPointerException` | Java's (unchecked) | `checkNotNull` fails: a bug. Never caught. |
+| `IllegalStateException` | Java's (unchecked) | `checkState` fails in `build()`: a bug. Never caught. |
+| `InvalidCupCountException` | **ours** (checked) | `Order.Builder.cups(0)`: the customer's mistake. Caught in `readOrder`. |

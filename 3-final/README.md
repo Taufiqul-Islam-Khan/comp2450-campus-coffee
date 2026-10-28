@@ -21,7 +21,8 @@ reads like *Receipt: 2 x latte for Sam*.
   **checked**: the compiler makes you catch them or declare `throws`.
 - `NumberFormatException` (from `parseInt`) is **unchecked**. We catch it right inside the small
   reading helpers, because that's the normal Java way to test whether text is a number.
-- `Objects.requireNonNull` in `Order.Builder` is a contract for **our** bugs. We never catch it.
+- `checkNotNull` and `checkState` in `Order.Builder` are contracts for **our** bugs. They throw
+  Java's `NullPointerException` and `IllegalStateException` (unchecked). We never catch them.
 
 ## Try it
 

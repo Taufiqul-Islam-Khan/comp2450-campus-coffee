@@ -2,7 +2,9 @@ package coffee.model;
 
 import coffee.exceptions.InvalidCupCountException;
 import java.math.BigDecimal;
-import java.util.Objects;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /** One order: a drink, how many cups, and an optional name for the cup. */
 public class Order {
@@ -34,12 +36,13 @@ public class Order {
         private String nameOnCup = "";     // default: no name on the cup
 
         public Builder drink(Drink drink) {
-            this.drink = Objects.requireNonNull(drink, "drink must not be null");   // our bug if null
+            checkNotNull(drink, "drink must not be null");         // contract: only our code can pass null
+            this.drink = drink;
             return this;
         }
 
         public Builder cups(int cups) throws InvalidCupCountException {
-            if (cups < 1 || cups > MAX_CUPS) {                    // the customer can cause this
+            if (cups < 1 || cups > MAX_CUPS) {                    // validation: the customer can cause this
                 throw new InvalidCupCountException("cups was " + cups);
             }
             this.cups = cups;
@@ -47,14 +50,14 @@ public class Order {
         }
 
         public Builder nameOnCup(String name) {                   // optional
+            checkNotNull(name, "name must not be null");           // contract
             this.nameOnCup = name.strip();
             return this;
         }
 
         public Order build() {
-            if (drink == null || cups == 0) {                     // our bug: a step was skipped
-                throw new IllegalStateException("set drink and cups before build()");
-            }
+            checkState(drink != null && cups != 0,                 // contract: our code skipped a step
+                    "set drink and cups before build()");
             return new Order(drink, cups, nameOnCup);
         }
     }
