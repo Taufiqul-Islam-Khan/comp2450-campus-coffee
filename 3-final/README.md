@@ -15,6 +15,14 @@ Also new: `readMoney()`, which reads an amount like `10.00` the same safe way as
 `Order.Builder` and the optional name on the cup are the same as in stage 2. The receipt now
 reads like *Receipt: 2 x latte for Sam*.
 
+## Precondition, validation, postcondition (in `CoffeeLogic.pay`)
+
+1. **Precondition** (before the work): `order` and `paid` are not null. Only our code can break this → `checkNotNull` (contract).
+2. **Validation**: the customer paid at least the total. The customer can cause this → `if` + throw `NotEnoughMoneyException`.
+3. **Postcondition** (after the work): the change is 0 or more → `checkState` (contract).
+
+Week 7's rule: when the user can cause a problem, the precondition becomes an `if` that throws an exception.
+
 ## Checked or unchecked?
 
 - `InvalidCupCountException` and `NotEnoughMoneyException` extend `Exception`, so they are
