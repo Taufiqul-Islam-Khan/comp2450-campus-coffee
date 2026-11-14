@@ -1,11 +1,25 @@
-# Campus Coffee ☕ — COMP 2450, Week 8
+# Campus Coffee ☕ — COMP 2450
 
-A small Java console app for ordering coffee. We build it together during
-**Week 8: Implementing errors and exceptions**.
+A small Java console app for ordering coffee. We use it as our running example
+in lectures, and the code grows week by week.
 
 The app asks which drink, how many cups and how much you pay (from stage 2 it
 also asks for an optional name for the cup),
 then shows your change and prints a receipt.
+
+## Which folder for which week
+
+| Week | Topic | Folder(s) |
+|---|---|---|
+| **Week 8** | Implementing errors and exceptions | [`1-starter`](1-starter), [`2-after-wednesday`](2-after-wednesday), [`3-final`](3-final) |
+| **Week 9** | Introducing software testing: test data | [`3-final`](3-final) (no new code: we wrote test data and tested by hand) |
+| **Week 10** | Automating software testing | [`week10-testing`](week10-testing): see its [README](week10-testing/README.md) |
+
+Each folder is its own Maven project. Open **one folder** at a time in IntelliJ.
+
+---
+
+# Week 8: Implementing errors and exceptions
 
 ## Three folders, three stages
 
