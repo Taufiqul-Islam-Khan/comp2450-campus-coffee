@@ -13,7 +13,7 @@ then shows your change and prints a receipt.
 |---|---|---|
 | **Week 8** | Implementing errors and exceptions | [`1-starter`](1-starter), [`2-after-wednesday`](2-after-wednesday), [`3-final`](3-final) |
 | **Week 9** | Introducing software testing: test data | [`3-final`](3-final) (no new code: we wrote test data and tested by hand) |
-| **Week 10** | Automating software testing | [`week10-testing`](week10-testing): see its [README](week10-testing/README.md) |
+| **Week 10** | Automating software testing | [`week10-testing`](week10-testing) → [`1-monday`](week10-testing/1-monday), [`2-wednesday`](week10-testing/2-wednesday), [`3-friday`](week10-testing/3-friday) (see its [README](week10-testing/README.md)) |
 
 Each folder is its own Maven project. Open **one folder** at a time in IntelliJ.
 

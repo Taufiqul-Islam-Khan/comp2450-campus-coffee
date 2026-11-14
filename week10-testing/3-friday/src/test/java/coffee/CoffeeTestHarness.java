@@ -9,7 +9,8 @@ import coffee.model.Order;
 import java.math.BigDecimal;
 
 /**
- * Week 10: a test harness for the CoffeeService interface.
+ * Week 10, Friday: Wednesday's harness plus testMenuHasThreeDrinks,
+ * added after code coverage showed that drinks() never ran.
  * It runs every test, counts the passes, and counts the fails.
  * Run it like any program: right-click, then Run 'CoffeeTestHarness.main()'.
  */
@@ -18,7 +19,7 @@ public class CoffeeTestHarness {
     private static int failed = 0;
 
     public static void main(String[] args) {
-        // drinks (added on Friday, after code coverage showed drinks() never ran)
+        // drinks (added on Friday: coverage showed drinks() never ran)
         testMenuHasThreeDrinks();
 
         // findDrink (return value)
