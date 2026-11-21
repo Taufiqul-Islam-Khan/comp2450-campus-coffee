@@ -1,0 +1,44 @@
+{
+    "menu": [
+        {
+            "id": "D1",
+            "name": "latte",
+            "price": 4.50
+        },
+        {
+            "id": "D2",
+            "name": "tea",
+            "price": 2.75
+        },
+        {
+            "id": "D3",
+            "name": "hot chocolate",
+            "price": 3.25
+        }
+    ],
+    "customers": [
+        {
+            "id": "C-7",
+            "name": "Sam",
+            "card": {
+                "number": "LC-0042",
+                "stamps": 4
+            },
+            "favourites": [
+                "D1",
+                "D3"
+            ]
+        },
+        {
+            "id": "C-12",
+            "name": "Priya",
+            "card": {
+                "number": "LC-0057",
+                "stamps": 7
+            },
+            "favourites": [
+                "D1"
+            ]
+        }
+    ]
+}
