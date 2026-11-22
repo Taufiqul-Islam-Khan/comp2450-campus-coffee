@@ -2,7 +2,6 @@ package coffee.logic;
 
 import coffee.exceptions.InvalidCupCountException;
 import coffee.exceptions.NotEnoughMoneyException;
-import coffee.model.Customer;
 import coffee.model.Drink;
 import coffee.model.Order;
 import java.io.IOException;
@@ -13,8 +12,8 @@ import java.util.List;
 public interface CoffeeService {
     List<Drink> drinks();
     Drink findDrink(String name);
-    Customer findCustomer(String id);
+    int orderCount();
     Order placeOrder(Drink drink, int cups, String nameOnCup) throws InvalidCupCountException;
     BigDecimal pay(Order order, BigDecimal paid) throws NotEnoughMoneyException;
-    void addStamp(Customer customer) throws IOException;
+    void recordOrder(Order order) throws IOException;
 }

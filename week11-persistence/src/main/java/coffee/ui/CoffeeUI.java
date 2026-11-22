@@ -3,13 +3,10 @@ package coffee.ui;
 import coffee.exceptions.InvalidCupCountException;
 import coffee.exceptions.NotEnoughMoneyException;
 import coffee.logic.CoffeeService;
-import coffee.model.Customer;
 import coffee.model.Drink;
 import coffee.model.Order;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -30,7 +27,7 @@ public class CoffeeUI {
         for (Drink d : shop.drinks()) {
             System.out.println("  " + d.name() + "  $" + d.price());
         }
-        Customer customer = readCustomer();
+        System.out.println("Orders so far: " + shop.orderCount());
         Drink drink = readDrink();
         System.out.print("Name for the cup (press Enter to skip): ");
         String nameOnCup = input.nextLine();
@@ -38,46 +35,22 @@ public class CoffeeUI {
         System.out.println("Total: $" + order.total());
         BigDecimal change = readPayment(order);
         System.out.println("Change: $" + change);
+        recordOrder(order);
 
-        ReceiptPrinter.print("Receipt: " + receiptLine(order));
+        ReceiptPrinter.print("Receipt " + order.id() + ": " + receiptLine(order));
         if (ReceiptPrinter.lastError != null) {
             System.out.println("Sorry, no receipt today (the printer is "
                     + ReceiptPrinter.lastError + ").");
         }
-        if (customer != null) {
-            addStamp(customer);
-        }
         System.out.println("Enjoy your drink!");
     }
 
-    // Return value: findCustomer gives back null if there is no customer with that ID
-    private Customer readCustomer() {
-        System.out.print("Loyalty customer ID, like C-7 (press Enter to skip): ");
-        String id = input.nextLine().strip().toUpperCase();
-        if (id.isEmpty()) {
-            return null;
-        }
-        Customer customer = shop.findCustomer(id);
-        if (customer == null) {
-            System.out.println("Sorry, we don't have a customer with that ID. No stamp today.");
-            return null;
-        }
-        List<String> names = new ArrayList<>();
-        for (Drink favourite : customer.favourites()) {
-            names.add(favourite.name());
-        }
-        System.out.println("Welcome back, " + customer.name() + "! Stamps: "
-                + customer.card().stamps() + ". Your favourites: " + String.join(", ", names) + ".");
-        return customer;
-    }
-
     // Saving can fail (for example, the file is read-only): tell the person, don't crash
-    private void addStamp(Customer customer) {
+    private void recordOrder(Order order) {
         try {
-            shop.addStamp(customer);
-            System.out.println(customer.name() + " now has " + customer.card().stamps() + " stamps.");
+            shop.recordOrder(order);
         } catch (IOException e) {
-            System.out.println("Sorry, we could not save your stamp today.");
+            System.out.println("Sorry, we could not save this order.");
         }
     }
 

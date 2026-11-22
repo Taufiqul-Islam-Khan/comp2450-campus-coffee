@@ -1,22 +1,22 @@
 package coffee.persistence.json;
 
+import coffee.exceptions.InvalidCupCountException;
 import coffee.model.CoffeeShop;
-import coffee.model.Customer;
 import coffee.model.Drink;
-import coffee.model.LoyaltyCard;
 import coffee.model.Menu;
+import coffee.model.Order;
 import coffee.persistence.CoffeePersistence;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
-import javax.json.JsonString;
 import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGenerator;
@@ -46,24 +46,18 @@ public class CoffeeJsonFile implements CoffeePersistence {
                     .add("price", drink.price()));
         }
 
-        JsonArrayBuilder customers = Json.createArrayBuilder();
-        for (Customer customer : shop.customers()) {
-            JsonArrayBuilder favourites = Json.createArrayBuilder();
-            for (Drink drink : customer.favourites()) {
-                favourites.add(drink.id());                    // aggregation: only the ID
-            }
-            customers.add(Json.createObjectBuilder()
-                    .add("id", customer.id())
-                    .add("name", customer.name())
-                    .add("card", Json.createObjectBuilder()    // composition: the whole card
-                            .add("number", customer.card().number())
-                            .add("stamps", customer.card().stamps()))
-                    .add("favourites", favourites));
+        JsonArrayBuilder orders = Json.createArrayBuilder();
+        for (Order order : shop.orders()) {
+            orders.add(Json.createObjectBuilder()
+                    .add("id", order.id())
+                    .add("drinkId", order.drink().id())     // aggregation: only the ID
+                    .add("cups", order.cups())
+                    .add("nameOnCup", order.nameOnCup()));
         }
 
         JsonObject json = Json.createObjectBuilder()
                 .add("menu", menu)
-                .add("customers", customers)
+                .add("orders", orders)
                 .build();
 
         // The factory only adds line breaks and spaces, so the file is easy to read.
@@ -73,7 +67,7 @@ public class CoffeeJsonFile implements CoffeePersistence {
         }
     }
 
-    /** Loads in three steps, so every favourite ID can be linked to a Drink that already exists. */
+    /** Loads in three steps, so every drink ID can be linked to a Drink that already exists. */
     @Override
     public CoffeeShop load() throws IOException {
         JsonObject json;
@@ -81,16 +75,18 @@ public class CoffeeJsonFile implements CoffeePersistence {
             json = reader.readObject();
         }
 
-        // Step 1: the customers, with the card each one owns. Skip the favourites for now.
-        Map<String, Customer> customersById = new LinkedHashMap<>();
-        for (JsonObject c : json.getJsonArray("customers").getValuesAs(JsonObject.class)) {
-            JsonObject card = c.getJsonObject("card");
-            Customer customer = new Customer.Builder()
-                    .id(c.getString("id"))
-                    .name(c.getString("name"))
-                    .card(new LoyaltyCard(card.getString("number"), card.getInt("stamps")))
-                    .build();
-            customersById.put(customer.id(), customer);
+        // Step 1: start building each order with its own values. Skip the drink for now.
+        Map<String, Order.Builder> builders = new LinkedHashMap<>();
+        for (JsonObject o : json.getJsonArray("orders").getValuesAs(JsonObject.class)) {
+            try {
+                Order.Builder builder = new Order.Builder()
+                        .id(o.getString("id"))
+                        .cups(o.getInt("cups"))
+                        .nameOnCup(o.getString("nameOnCup"));
+                builders.put(o.getString("id"), builder);
+            } catch (InvalidCupCountException e) {
+                throw new IOException("bad order " + o.getString("id") + " in " + file + ": " + e.getMessage(), e);
+            }
         }
 
         // Step 2: the drinks on the menu, kept in a map by their ID.
@@ -101,17 +97,14 @@ public class CoffeeJsonFile implements CoffeePersistence {
             drinksById.put(drink.id(), drink);
         }
 
-        // Step 3: read the customers a second time and link each favourite ID to its Drink.
-        for (JsonObject c : json.getJsonArray("customers").getValuesAs(JsonObject.class)) {
-            Customer customer = customersById.get(c.getString("id"));
-            for (JsonString drinkId : c.getJsonArray("favourites").getValuesAs(JsonString.class)) {
-                Drink drink = drinksById.get(drinkId.getString());
-                checkState(drink != null, "no drink on the menu with ID " + drinkId.getString());
-                customer.addFavourite(drink);
-            }
+        // Step 3: read the orders a second time, link each drink ID to its Drink, and build the order.
+        List<Order> orders = new ArrayList<>();
+        for (JsonObject o : json.getJsonArray("orders").getValuesAs(JsonObject.class)) {
+            Drink drink = drinksById.get(o.getString("drinkId"));
+            checkState(drink != null, "no drink on the menu with ID " + o.getString("drinkId"));
+            orders.add(builders.get(o.getString("id")).drink(drink).build());
         }
 
-        return new CoffeeShop(new Menu(new ArrayList<>(drinksById.values())),
-                new ArrayList<>(customersById.values()));
+        return new CoffeeShop(new Menu(new ArrayList<>(drinksById.values())), orders);
     }
 }

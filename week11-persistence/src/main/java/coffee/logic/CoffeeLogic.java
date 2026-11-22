@@ -3,7 +3,6 @@ package coffee.logic;
 import coffee.exceptions.InvalidCupCountException;
 import coffee.exceptions.NotEnoughMoneyException;
 import coffee.model.CoffeeShop;
-import coffee.model.Customer;
 import coffee.model.Drink;
 import coffee.model.Order;
 import coffee.persistence.CoffeePersistence;
@@ -16,6 +15,8 @@ import static com.google.common.base.Preconditions.checkState;
 
 /** Decides and calculates. Never reads input, never prints, never touches a file itself. */
 public class CoffeeLogic implements CoffeeService {
+    private static final int FIRST_ORDER_NUMBER = 1001;
+
     private final CoffeePersistence storage;   // the interface: what it can do, not how
     private final CoffeeShop shop;
 
@@ -36,14 +37,16 @@ public class CoffeeLogic implements CoffeeService {
     }
 
     @Override
-    public Customer findCustomer(String id) {
-        return shop.findCustomer(id);           // null if there is no such customer
+    public int orderCount() {
+        return shop.orders().size();
     }
 
     @Override
     public Order placeOrder(Drink drink, int cups, String nameOnCup)
             throws InvalidCupCountException {
+        String id = "O-" + (FIRST_ORDER_NUMBER + shop.orders().size());   // O-1001, O-1002, ...
         return new Order.Builder()              // the Builder checks each piece
+                .id(id)
                 .drink(drink)
                 .cups(cups)
                 .nameOnCup(nameOnCup)
@@ -68,11 +71,13 @@ public class CoffeeLogic implements CoffeeService {
         return change;
     }
 
-    /** One stamp for this order, then save the whole shop. This is our point of persistence. */
+    /** Adds a paid order to the history, then saves the whole shop. This is our point of persistence. */
     @Override
-    public void addStamp(Customer customer) throws IOException {
-        checkNotNull(customer, "customer must not be null");
-        customer.card().addStamp();
+    public void recordOrder(Order order) throws IOException {
+        checkNotNull(order, "order must not be null");
+        int before = shop.orders().size();
+        shop.addOrder(order);
+        checkState(shop.orders().size() == before + 1, "the order history must grow by one");   // postcondition
         storage.save(shop);
     }
 }

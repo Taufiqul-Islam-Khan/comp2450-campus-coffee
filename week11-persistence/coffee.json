@@ -16,29 +16,24 @@
             "price": 3.25
         }
     ],
-    "customers": [
+    "orders": [
         {
-            "id": "C-7",
-            "name": "Sam",
-            "card": {
-                "number": "LC-0042",
-                "stamps": 4
-            },
-            "favourites": [
-                "D1",
-                "D3"
-            ]
+            "id": "O-1001",
+            "drinkId": "D1",
+            "cups": 2,
+            "nameOnCup": "Sam"
         },
         {
-            "id": "C-12",
-            "name": "Priya",
-            "card": {
-                "number": "LC-0057",
-                "stamps": 7
-            },
-            "favourites": [
-                "D1"
-            ]
+            "id": "O-1002",
+            "drinkId": "D2",
+            "cups": 1,
+            "nameOnCup": ""
+        },
+        {
+            "id": "O-1003",
+            "drinkId": "D1",
+            "cups": 1,
+            "nameOnCup": "Priya"
         }
     ]
 }

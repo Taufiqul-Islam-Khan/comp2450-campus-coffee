@@ -3,24 +3,28 @@ package coffee.model;
 import coffee.exceptions.InvalidCupCountException;
 import java.math.BigDecimal;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-/** One order: a drink, how many cups, and an optional name for the cup. */
+/** One order: its ID, a drink, how many cups, and an optional name for the cup. */
 public class Order {
     public static final int MAX_CUPS = 10;
 
+    private final String id;
     private final Drink drink;
     private final int cups;
     private final String nameOnCup;
 
     // private: the only way to make an Order is through Order.Builder
-    private Order(Drink drink, int cups, String nameOnCup) {
+    private Order(String id, Drink drink, int cups, String nameOnCup) {
+        this.id = id;
         this.drink = drink;
         this.cups = cups;
         this.nameOnCup = nameOnCup;
     }
 
+    public String id() { return id; }
     public Drink drink() { return drink; }
     public int cups() { return cups; }
     public String nameOnCup() { return nameOnCup; }
@@ -31,9 +35,17 @@ public class Order {
 
     /** Builds an Order one piece at a time, checking each piece. */
     public static class Builder {
+        private String id;
         private Drink drink;
         private int cups;                  // 0 means "not set yet"
         private String nameOnCup = "";     // default: no name on the cup
+
+        public Builder id(String id) {
+            checkNotNull(id, "id must not be null");               // contract
+            checkArgument(!id.isBlank(), "id must not be blank");
+            this.id = id;
+            return this;
+        }
 
         public Builder drink(Drink drink) {
             checkNotNull(drink, "drink must not be null");         // contract: only our code can pass null
@@ -56,9 +68,9 @@ public class Order {
         }
 
         public Order build() {
-            checkState(drink != null && cups != 0,                 // contract: our code skipped a step
-                    "set drink and cups before build()");
-            return new Order(drink, cups, nameOnCup);
+            checkState(id != null && drink != null && cups != 0,   // contract: our code skipped a step
+                    "set id, drink and cups before build()");
+            return new Order(id, drink, cups, nameOnCup);
         }
     }
 }
