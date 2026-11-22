@@ -30,6 +30,20 @@ and every order is still there.
 Point of persistence: after an order is paid, `CoffeeLogic.recordOrder` adds it to the history
 and saves the whole shop (coarse-grained). Loading happens once, when `CoffeeLogic` is created.
 
+## From the slides to the code
+
+| Slide (day) | Open this file |
+|---|---|
+| Example: Coverage of Order.Builder.cups (Mon) | `model/Order.java` → `Builder.cups` |
+| Layers of Responsibility with Persistence (Mon) | the packages `ui`, `logic`, `model`, `persistence` |
+| Applying DIP to CoffeeLogic (Wed) | `persistence/CoffeePersistence.java`, the `storage` field in `logic/CoffeeLogic.java` |
+| Dependency Injection (Wed) | the constructors of `CoffeeLogic` and `ui/CoffeeUI.java` |
+| Main Connects the Layers (Wed) | `Main.java` |
+| Composition and Aggregation in coffee.json (Wed) | `coffee.json` |
+| Builders in JSON-P, Saving the Shop with JSON-P (Fri) | `CoffeeJsonFile.save` |
+| Reading coffee.json with JSON-P, Loading in Three Steps (Fri) | `CoffeeJsonFile.load` |
+| Builders Reject Bad Data When Loading (Fri) | `Order.Builder`, and the `catch` in `CoffeeJsonFile.load` |
+
 ## How the code is organised
 
 ```
