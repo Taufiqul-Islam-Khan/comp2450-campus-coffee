@@ -1,5 +1,6 @@
 package coffee.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -12,7 +13,7 @@ public class Menu {
     public Menu(List<Drink> drinks) {
         checkNotNull(drinks, "drinks must not be null");
         checkArgument(!drinks.isEmpty(), "a menu needs at least one drink");
-        this.drinks = List.copyOf(drinks);
+        this.drinks = new ArrayList<>(drinks);      // our own copy of the list
     }
 
     public List<Drink> drinks() {

@@ -12,13 +12,14 @@ public class CoffeeShop {
 
     public CoffeeShop(Menu menu, List<Order> orders) {
         this.menu = checkNotNull(menu, "menu must not be null");
-        this.orders = new ArrayList<>(checkNotNull(orders, "orders must not be null"));
+        this.orders = new ArrayList<>(checkNotNull(orders, "orders must not be null"));      // our own copy
     }
 
     public Menu menu() { return menu; }
 
+    /** A copy of the order history, so no other class can change our list. */
     public List<Order> orders() {
-        return List.copyOf(orders);
+        return new ArrayList<>(orders);
     }
 
     /** Adds a paid order to the order history. */
