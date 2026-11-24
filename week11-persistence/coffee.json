@@ -1,39 +1,12 @@
 {
-    "menu": [
-        {
-            "id": "D1",
-            "name": "latte",
-            "price": 4.50
-        },
-        {
-            "id": "D2",
-            "name": "tea",
-            "price": 2.75
-        },
-        {
-            "id": "D3",
-            "name": "hot chocolate",
-            "price": 3.25
-        }
-    ],
-    "orders": [
-        {
-            "id": "O-1001",
-            "drinkId": "D1",
-            "cups": 2,
-            "nameOnCup": "Sam"
-        },
-        {
-            "id": "O-1002",
-            "drinkId": "D2",
-            "cups": 1,
-            "nameOnCup": ""
-        },
-        {
-            "id": "O-1003",
-            "drinkId": "D1",
-            "cups": 1,
-            "nameOnCup": "Priya"
-        }
-    ]
+  "menu": [
+    { "id": "D1", "name": "latte", "price": 4.50 },
+    { "id": "D2", "name": "tea", "price": 2.75 },
+    { "id": "D3", "name": "hot chocolate", "price": 3.25 }
+  ],
+  "orders": [
+    { "id": "O-1001", "drinkId": "D1", "cups": 2, "nameOnCup": "Sam" },
+    { "id": "O-1002", "drinkId": "D2", "cups": 1, "nameOnCup": "" },
+    { "id": "O-1003", "drinkId": "D1", "cups": 1, "nameOnCup": "Priya" }
+  ]
 }

@@ -21,8 +21,9 @@ and every order is still there.
 | **Dependency Inversion Principle** (Wed) | `CoffeeLogic` has a field of type `CoffeePersistence` (the interface), not `CoffeeJsonFile` |
 | **Dependency injection** (Wed) | `CoffeeLogic(CoffeePersistence storage)` and `CoffeeUI(CoffeeService shop, Scanner input)` receive their objects |
 | **Main connects the layers** (Wed) | `Main.java`: the only place that creates the layers |
-| **Composition in JSON** (Wed) | the menu owns its drinks: each drink is saved whole, **inside** the menu |
-| **Aggregation in JSON** (Wed) | an order points to a drink on the menu: the order saves **only the drink's ID** |
+| **Testing without coffee.json** (Wed) | `src/test/java/coffee/MemoryStorage.java` and `CoffeeTestHarness.java` |
+| **Composition in JSON** (Fri) | the menu owns its drinks: each drink is saved whole, **inside** the menu |
+| **Aggregation in JSON** (Fri) | an order points to a drink on the menu: the order saves **only the drink's ID** |
 | **JSON-P and builders** (Fri) | `pom.xml` (new dependency) and `CoffeeJsonFile.save` |
 | **Loading in three steps** (Fri) | `CoffeeJsonFile.load` (steps 1, 2 and 3 are marked in the comments) |
 | **Bad data cannot make an invalid object** (Fri) | `Order.Builder` and the checks in `Drink` |
@@ -36,12 +37,14 @@ and saves the whole shop (coarse-grained). Loading happens once, when `CoffeeLog
 |---|---|
 | Example: Coverage of Order.Builder.cups (Mon) | `model/Order.java` → `Builder.cups` |
 | Layers of Responsibility with Persistence (Mon) | the packages `ui`, `logic`, `model`, `persistence` |
+| Java Interfaces: A Quick Reminder (Wed) | `logic/CoffeeService.java` and `orderCount` in `logic/CoffeeLogic.java` |
 | Applying DIP to CoffeeLogic (Wed) | `persistence/CoffeePersistence.java`, the `storage` field in `logic/CoffeeLogic.java` |
 | Dependency Injection (Wed) | the constructors of `CoffeeLogic` and `ui/CoffeeUI.java` |
 | Main Connects the Layers (Wed) | `Main.java` |
-| Composition and Aggregation in coffee.json (Wed) | `coffee.json` |
-| Builders in JSON-P, Saving the Shop with JSON-P (Fri) | `CoffeeJsonFile.save` |
-| Reading coffee.json with JSON-P, Loading in Three Steps (Fri) | `CoffeeJsonFile.load` |
+| Why It Helps: Testing Without Touching coffee.json (Wed) | `src/test/java/coffee/MemoryStorage.java`, `CoffeeTestHarness.java` |
+| Composition and Aggregation in coffee.json (Fri) | `coffee.json` |
+| Saving the Menu with Builders, Saving the Orders and Writing the File (Fri) | `CoffeeJsonFile.save` |
+| Reading coffee.json with JSON-P, Steps 1 and 2, Step 3 (Fri) | `CoffeeJsonFile.load`, and `findDrinkById` in `model/Menu.java` |
 | Builders Reject Bad Data When Loading (Fri) | `Order.Builder`, and the `catch` in `CoffeeJsonFile.load` |
 
 ## How the code is organised
@@ -50,19 +53,23 @@ and saves the whole shop (coarse-grained). Loading happens once, when `CoffeeLog
 week11-persistence/
 ├── pom.xml                  Guava + JSON-P
 ├── coffee.json              the saved state (menu and order history)
-└── src/main/java/coffee/
-    ├── Main.java            creates every layer and connects them
-    ├── ui/                  CoffeeUI: reads input, prints messages
-    ├── logic/               CoffeeService (interface) and CoffeeLogic
-    ├── model/               Drink, Menu, Order, CoffeeShop
-    ├── persistence/         CoffeePersistence (interface)
-    │   └── json/            CoffeeJsonFile: the only class that knows about JSON
-    └── exceptions/          same as Week 8
+└── src/
+    ├── main/java/coffee/
+    │   ├── Main.java            creates every layer and connects them
+    │   ├── ui/                  CoffeeUI: reads input, prints messages
+    │   ├── logic/               CoffeeService (interface) and CoffeeLogic
+    │   ├── model/               Drink, Menu, Order, CoffeeShop
+    │   ├── persistence/         CoffeePersistence (interface)
+    │   │   └── json/            CoffeeJsonFile: the only class that knows about JSON
+    │   └── exceptions/          same as Week 8
+    └── test/java/coffee/
+        ├── MemoryStorage.java       a CoffeePersistence for tests: no file at all
+        └── CoffeeTestHarness.java   tests that inject a MemoryStorage
 ```
 
 ```
 CoffeeUI ──uses──► CoffeeService ◄── CoffeeLogic ──uses──► CoffeePersistence ◄── CoffeeJsonFile
-                    (interface)                              (interface)
+                    (interface)                              (interface)       ◄── MemoryStorage (tests)
 ```
 
 ## The saved file
@@ -82,17 +89,17 @@ CoffeeUI ──uses──► CoffeeService ◄── CoffeeLogic ──uses─�
 }
 ```
 
-(The real `coffee.json` has the same data. After the first save, JSON-P writes it with its own
-line breaks and spaces, starting with an empty line. The data is the same.)
+When the program saves, JSON-P writes the whole file on **one line**. The data is the same.
+To read it easily in IntelliJ, open `coffee.json` and choose **Code → Reformat Code**.
 
 ## How loading works (three steps)
 
 An `Order` cannot be built without its `Drink`, so we keep each order's builder open until the
 drink is found:
 
-1. Start an `Order.Builder` for each order with its own values (`id`, `cups`, `nameOnCup`). Skip the drink.
-2. Build each drink on the menu and keep it in a map by its ID.
-3. Read the orders a second time: find each order's drink by `drinkId`, give it to that order's builder, and build the order.
+1. Start an `Order.Builder` for each order with its own values (`id`, `nameOnCup`, `cups`), and keep the builders in a list. Skip the drink.
+2. Build each drink on the menu, and make the `Menu`.
+3. Read the orders a second time: find each order's drink on the menu with `findDrinkById`, give it to that order's builder (`builders.get(i)`), and build the order.
 
 ## How to run
 
@@ -107,7 +114,9 @@ Try it:
    The orders were saved.
 3. Open `coffee.json`. Your new orders are at the end of `"orders"`, each with only a `drinkId`.
 4. Change the first order's `"cups"` to `11` in the file and run again. The program stops with
-   `bad order O-1001 in coffee.json: cups was 11`: bad data never becomes an invalid `Order`.
+   `java.io.IOException: bad order O-1001: cups was 11`: bad data never becomes an invalid `Order`.
    Change it back afterwards.
+5. Run `src/test/java/coffee/CoffeeTestHarness.java`. All 4 tests pass, and `coffee.json` does not
+   change, because every test injects a `MemoryStorage`.
 
 To start again with 3 orders, undo your changes to `coffee.json` (or copy it from GitHub).

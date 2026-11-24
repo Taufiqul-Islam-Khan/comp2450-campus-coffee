@@ -28,4 +28,14 @@ public class Menu {
         }
         return null;
     }
+
+    /** Returns the drink with this ID, for example "D1", or null if there is none. */
+    public Drink findDrinkById(String id) {
+        for (Drink drink : drinks) {
+            if (drink.id().equals(id)) {
+                return drink;
+            }
+        }
+        return null;
+    }
 }
